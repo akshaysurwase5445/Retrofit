@@ -1,0 +1,187 @@
+     private void getLaunchData() {
+
+        LaunchesInterface launchesInterface =APIClient.getClient().create(LaunchesInterface.class);
+
+         Call<MainData> mainDataCall = launchesInterface.get_Launches();
+
+         mainDataCall.enqueue(new Callback<MainData>() {
+             @Override
+             public void onResponse(Call<MainData> call, Response<MainData> response) {
+
+                 MainData mainData = response.body();
+                 Log.d(TAG, "onResponse: maindta 0"+mainData);
+
+                 // for flight number
+                 mFlightNumber.setText(""+mainData.getFlightNumber());
+
+                 // for rocket
+                 Rocket rocket = mainData.getRocket();
+
+                 mRocketName.setText(""+rocket.getRocketName());
+
+                 // for core serial
+
+                 List<Core> cores = rocket.getFirstStage().getCores();
+
+                 mCoreSerial.setText(""+cores.get(0).getCoreSerial());
+
+                 //block
+
+                 mBlock.setText(""+rocket.getSecondStage().getBlock());
+
+                 //PayloadID
+                  List<Payload> payloadList = rocket.getSecondStage().getPayloads();
+
+                  mPayloadId.setText(""+payloadList.get(0).getPayloadId());
+
+                  // nationality
+
+                 mNationality.setText(""+payloadList.get(0).getNationality());
+
+                 // Payload Type
+
+                 mPayloadType.setText(""+payloadList.get(0).getPayloadType());
+
+                 // Reference System
+
+                 OrbitParams orbitParams = payloadList.get(0).getOrbitParams();
+
+                 mRefernceSystem.setText(""+orbitParams.getReferenceSystem());
+
+                 // regime
+
+                 mRegime.setText(""+orbitParams.getRegime());
+
+                 // UID
+
+                 mUID.setText(""+payloadList.get(0).getUid());
+
+                 // Fairing Reused
+
+                 Fairing fairing = rocket.getFairings();
+
+                 mFaringReused.setText(""+fairing.getReused());
+
+                 //Telemetry
+
+                 Telemetry telemetry = mainData.getTelemetry();
+
+                 mTelemetry.setText(""+telemetry.getFlightClub());
+
+                 // launch site Name
+
+                 LaunchSite launchSite = mainData.getLaunchSite();
+
+                 mLaunchSiteName.setText(""+launchSite.getSiteName());
+
+                 //Upcoming
+
+                 mUpcoming.setText(""+mainData.getUpcoming());
+
+                 // TimeLine
+
+                 mTimeline.setText(""+mainData.getTimeline());
+             }
+
+             @Override
+             public void onFailure(Call<MainData> call, Throwable t) {
+
+             }
+         });
+     }
+     
+     ============================================== or ===============================================================
+     
+     
+        private void getShipsData() {
+
+        AllShipsInterface allShipsInterface = APIClient.getClient().create(AllShipsInterface.class);
+
+        final Call<List<MainShip>> mainShipCall = allShipsInterface.get_verify_contact();
+
+        mainShipCall.enqueue(new Callback<List<MainShip>>() {
+            @Override
+            public void onResponse(Call<List<MainShip>> call, Response<List<MainShip>> response) {
+
+                Log.d(TAG, "onResponse: " + response.toString());
+
+                List<MainShip> mainShipList = response.body();
+
+                Log.d(TAG, "onResponse: mainList"+mainShipList);
+
+                shipAdapter = new ShipAdapter(mainShipList,getApplicationContext());
+                mShipRecyclerView.setAdapter(shipAdapter);
+                shipAdapter.notifyDataSetChanged();
+
+
+               /* for (int i = 0 ; i < mainShipList.size() ; i++ ){
+
+                    Log.d(TAG, "onResponse: firstobject"+ mainShipList.get(i).getShipName());
+
+                }*/
+            }
+
+            @Override
+            public void onFailure(Call<List<MainShip>> call, Throwable t) {
+                Log.d(TAG, "failure: " + t.getMessage());
+                Toast.makeText(MainActivity.this, ""+t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+     
+     ********************************************************************************************************************
+     ====================================================================================================================
+     
+     @Override
+    public void onBindViewHolder(@NonNull ViewHolderShip holder, final int position) {
+
+        if (mainShipList != null){
+
+            Log.d(TAG, "onBindViewHolder: position"+ mainShipList.get(position).getShipName());
+
+            holder.mshipName.setText(""+mainShipList.get(position).getShipName());
+            holder.mshipType.setText(""+mainShipList.get(position).getShipType());
+            holder.mshipIMO.setText(""+mainShipList.get(position).getImo());
+            holder.mshipWeight.setText(""+mainShipList.get(position).getWeightKg());
+            holder.mshipPort.setText(""+mainShipList.get(position).getHomePort());
+
+            Glide.with(context).
+                    load(mainShipList.get(position).
+                            getImage()).into(holder.ship_img);
+
+            List<Mission> missionList = mainShipList.get(position).getMissions();
+
+            ArrayList<String> mission = new ArrayList<>();
+            for (int i = 0 ; i < missionList.size() ; i++){
+
+                Log.d(TAG, "onBindViewHolder: missionlistName "+missionList.get(i).getName());
+                Log.d(TAG, "onBindViewHolder: missionlistFlight "+missionList.get(i).getFlight());
+
+                mission.add(missionList.get(i).getName());
+            }
+            mission.add(0,"Mission Name List ");
+
+            ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(
+                    context, R.layout.spinners_layout,
+                    mission
+            );
+
+            //set adapter to spinner
+            holder.spinner.setAdapter(adapter1);
+
+            holder.website.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent intent = new Intent(context,WebViewAcivity.class);
+                    intent.putExtra("url",mainShipList.get(position).getUrl());
+                    context.startActivity(intent);
+
+                }
+            });
+
+
+        }
+    }
+
