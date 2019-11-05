@@ -11,3 +11,5 @@ public interface LaunchesInterface {
     @GET("v3/launches/67")
     Call<MainData> get_Launches();
 }
+
+********************* create model class according to your requirment ***************************
