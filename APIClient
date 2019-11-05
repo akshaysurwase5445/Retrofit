@@ -12,6 +12,11 @@
         exclude module: "httpclient"
     }    
     
+    //glide
+    
+    implementation 'com.github.bumptech.glide:glide:4.3.1'
+    implementation 'com.github.bumptech.glide:annotations:4.3.1-SNAPSHOT'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
     
     *********************************** API Client ******************************************
     
